@@ -23,7 +23,7 @@ gs4_auth(token = drive_token())
 ui <- navbarPage("riskmetric Survey", id= "inTabset",
         tabPanel("Introduction",
                  h2("Introduction"),
-                 h5("The ",a("riskmetric package", href = "https://pharmar.github.io/riskmetric/index.html"), 
+                 h5("The ",a("riskmetric package", href = "https://pharmar.github.io/riskmetric/index.html", target="_blank"), 
                  " provides a workflow to evaluate the quality of a set of R packages 
                    that involves five major steps. The workflow can help users to choose high quality 
                    R packages, improve package reliability and prove the validity of R packages in a 
@@ -42,10 +42,10 @@ ui <- navbarPage("riskmetric Survey", id= "inTabset",
                  br(),
                  h5("The risk of a package is the combination of its quality and its criticality in a users workflow."),
                  h2("Data Collection:"),
-                 h5("We will only collect and store the data collected on the form. 
+                 h5("We will only collect and store the data on the form.
                    Each user's submission will be uniquely identified by a random string generated when you submit the form.
                    We do not collect any other information from your visit to this survey. 
-                   The riskmetric team plans to release all the collected data with the riskmetric app"),
+                   The riskmetric team plans to release all the collected data with the riskmetric package."),
         actionButton("jumpToP1", "Start the survey")),
         tabPanel("Survey", value="survey",
             uiOutput("survey")
@@ -56,10 +56,13 @@ ui <- navbarPage("riskmetric Survey", id= "inTabset",
 server <- function(input, output, session) {
     
     output$survey <- renderUI({
-        surveyOutput(qs[c(1:18,sample(19:nrow(qs), 15, FALSE)), ],
-                     survey_title = "Community-based risk assessment of select packages",
-                     survey_description = "Please rate each package on a scale from 1 to 10; 
-                     with 1 being low risk and 10 being high risk")
+        qs_idx <- sample(x = unique(qs$question)[-c(1:4)], size = 15, replace = F)
+        qs_idx <- which(qs$question %in% qs_idx)
+        surveyOutput(qs[c(1:18,qs_idx), ],
+                     survey_title = "Crowd-sourced risk assessment of select packages",
+                     survey_description = "Please rate each package on a scale from 1 to 5; 
+                     with 1 being low risk and 5 being high risk. If you are unfamiliar with 
+                     the package you may mark NA")
     })
     
     observeEvent(input$jumpToP1, {
