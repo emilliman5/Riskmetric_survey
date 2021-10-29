@@ -24,28 +24,29 @@ ui <- navbarPage("riskmetric Survey", id= "inTabset",
         tabPanel("Introduction",
                  h2("Introduction"),
                  h5("The ",a("riskmetric package", href = "https://pharmar.github.io/riskmetric/index.html", target="_blank"), 
-                 " provides a workflow to evaluate the quality of a set of R packages 
-                   that involves five major steps. The workflow can help users to choose high quality 
+                 " provides a workflow to evaluate the quality of (a set) of R packages 
+                   which involves five major steps. The workflow can help users to choose high quality 
                    R packages, improve package reliability and prove the validity of R packages in a 
                    regulated industry."),
-                 br(),
                  h5("One issue with risk is its need for context. For example, a package used for a class 
-                   project is of lower risk than the same package being used to determine if a new therapy is effective."),
-                 br(),
-                 h5("Furthermore, weighting of package assessments which make up a package's risk score have 
+                   project is of lower risk than the same package being used to determine if a new therapy is effective.
+                   The risk of a package is the combination of its quality and its criticality in a users workflow."),
+                 h5("Furthermore, weighting of package metrics (i.e. an assessment score) which make up a package's summarized risk score have 
                     been done arbitrailiy or not at all. Enter this survey. We hope that by crowd sourcing 
                    a risk rating on a number of packages will allow us to empirically determine weights for each 
-                   assessment used in the riskmetric package."),
+                   package metric used in the riskmetric package."),
                  h2("Instructions"),
-                 h5("Please rate the following packages based on your preceived risk of using each package in a 
-                   regulatory finding."), 
-                 br(),
-                 h5("The risk of a package is the combination of its quality and its criticality in a users workflow."),
-                 h2("Data Collection:"),
-                 h5("We will only collect and store the data on the form.
-                   Each user's submission will be uniquely identified by a random string generated when you submit the form.
-                   We do not collect any other information from your visit to this survey. 
-                   The riskmetric team plans to release all the collected data with the riskmetric package."),
+                 h5("Please rate the packages on the next tab, based on your preceived risk of using each package in
+                    your environment. Your environment could be your desktop, rstudio cloud, a company server (GxP or non-GxP), etc.
+                    The survey randomly selects 15 packages from the 500-ish most downloaded pacakges on CRAN for you to rate. You are welcome 
+                    to revist survey to rate more packages if you like, however, there is a finite chance of being asked about the same packages
+                    over and over due to the anonimity of the survey."), 
+                 h2("Data Collection and Privacy:"),
+                 h5("We will only collect and store the data submitted on the form. 
+                 You are free to skip any questions you are not comfortable answering.
+                   Each user's submission will be uniquely identified by a random string generated when you submit the form for agregation and modeling.
+                   The riskmetric team plans to release all the collected data with the riskmetric package so that other developers 
+                    and users can empirically derive their own package metric weights for summarization."),
         actionButton("jumpToP1", "Start the survey")),
         tabPanel("Survey", value="survey",
             uiOutput("survey")
@@ -62,7 +63,7 @@ server <- function(input, output, session) {
                      survey_title = "Crowd-sourced risk assessment of select packages",
                      survey_description = "Please rate each package on a scale from 1 to 5; 
                      with 1 being low risk and 5 being high risk. If you are unfamiliar with 
-                     the package you may mark NA")
+                     the package you may mark NA. All reponses are anonymous.")
     })
     
     observeEvent(input$jumpToP1, {
@@ -79,7 +80,7 @@ server <- function(input, output, session) {
         #print(response_data)
         sheet_append("https://docs.google.com/spreadsheets/d/1Orw5uWFqLxAv_eronJlKonLSy0KyJLV8QwApMo5pi-g", response_data)
         showModal(modalDialog(
-            title = "Thank you for completeing this survey", 
+            title = "Thank you for completeing this suRvey", 
         ))
     })
 }

@@ -1,10 +1,6 @@
+library(tidyverse)
 setwd("~/OneDrive - Biogen/packages/r_package_survey/R_package_risk_survey/")
-ap <- as.data.frame(available.packages())
 
-dwlds <- lapply(split(ap$Package, ceiling(seq_along(ap$Package)/500)), 
-                function(x){
-                  cranlogs::cran_downloads(x, "last-month")
-                })
 validRpkgs <- c("abind", "ape", "askpass", "assertthat", "backports", "base64enc", 
                 "BH", "BiocManager", "bit", "bit64", "blob", "brew", "brio", 
                 "broom", "buds", "callr", "cellranger", "checkmate", "cli", "clipr", 
@@ -91,15 +87,25 @@ validRpkgs <- c("abind", "ape", "askpass", "assertthat", "backports", "base64enc
                 "warp", "webshot", "whisker", "withr", "workflows", "writexl", 
                 "xfun", "XML", "xml2", "xopen", "xtable", "xts", "yaml", "yardstick", 
                 "zip", "zoo")
+
+if(!file.exists("ap.rds")){
+  ap <- as.data.frame(available.packages())
+  saveRDS(ap, "ap.rds")
+} else {
+  ap <- readRDS("ap.rds")
+}
+
+dwlds <- lapply(split(ap$Package, ceiling(seq_along(ap$Package)/500)), 
+                function(x){
+                  cranlogs::cran_downloads(x, "last-month")
+                })
 dwlds <- do.call(rbind, dwlds)
 ap <- dwlds %>% 
   group_by(package) %>% 
   summarise(count=sum(count)) %>% 
   right_join(., ap, by = c("package" = "Package")) %>% 
   filter(package %in% validRpkgs | count >= 36692)
-saveRDS(ap, "ap.rds")
 
-ap <- readRDS("ap.rds")
 
 qs <- dplyr::bind_rows(data.frame(question = c(rep("How many years of experience with R do you have?", 4),
                                         rep("What sector are you currently in?", 6),
@@ -116,7 +122,7 @@ qs <- dplyr::bind_rows(data.frame(question = c(rep("How many years of experience
                            required = T,
                            stringsAsFactors = F),
                 data.frame(question = rep(ap$package, each = 6),
-                           option = rep(c("NA",1:5), length(ap$package)),
+                           option = rep(c("NA","1 - (Low)",2:4, "5 - (High)"), length(ap$package)),
                            input_type = c("mc"),
                            input_id = rep(ap$package, each = 6),
                            dependence = NA,
