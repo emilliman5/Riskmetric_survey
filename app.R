@@ -20,7 +20,10 @@ drive_auth(cache = ".secrets", email = "emilliman4@gmail.com")
 gs4_auth(token = drive_token())
 
 # Define UI for application that draws a histogram
-ui <- navbarPage("riskmetric Survey", id= "inTabset",
+ui <- navbarPage(
+    "riskmetric Survey",
+    id = "inTabset",
+    tags$link(rel = "stylesheet", type = "text/css", href = "css/style.css"),
         tabPanel("Introduction",
                  h2("Introduction"),
                  h5("The ",a("riskmetric package", href = "https://pharmar.github.io/riskmetric/index.html", target="_blank"), 
