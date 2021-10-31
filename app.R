@@ -39,23 +39,23 @@ ui <- navbarPage(
             p("The ", riskmetric_link, "provides a workflow to evaluate the quality
         of (a set) of R packages which involves five major steps. The workflow
         can help users to choose high quality R packages, improve package
-        reliability and prove the validity of R packages in a regulated
+        reliability, and prove the validity of R packages in a regulated
           industry."),
 
             p("One issue with risk is its need for context. For example, a package used for a class
                    project is of lower risk than the same package being used to determine if a new therapy is effective.
                    The risk of a package is the combination of its quality and its criticality in a user's workflow."),
 
-            p("Furthermore, weighting of package metrics (i.e. an assessment score) which make up a package's summarized risk score have
+            p("Furthermore, weighting of package metrics (i.e., an assessment score) which make up a package's summarized risk score has
                     been done arbitrability or not at all. Enter this survey. We hope that by crowd sourcing
-                   a risk rating on a number of packages will allow us to empirically determine weights for each
+                   a risk rating on a number of packages we can empirically determine weights for each
                    package metric used in the riskmetric package."),
             br(),
             h2("Instructions"),
             p("Please rate the packages on the next tab, based on your perceived risk of using each package in
-                    your environment. Your environment could be your desktop, RStudio cloud, a company server (GxP or non-GxP), etc.
+                    your environment. Your environment could be your desktop, RStudio Cloud, a company server (GxP or non-GxP), etc.
                     The survey randomly selects 15 packages from the 500-ish most downloaded packages on CRAN for you to rate. You are welcome
-                    to revisit survey to rate more packages if you like, however, there is a finite chance of being asked about the same packages
+                    to revisit the survey to rate more packages if you like, however, there is a chance of being asked about the same packages
                     over and over due to the anonymity of the survey."),
             br(),
             h2("Data Collection and Privacy"),
@@ -83,7 +83,7 @@ server <- function(input, output, session) {
                      survey_title = "Crowd-sourced risk assessment of select packages",
                      survey_description = "Please rate each package on a scale from 1 to 5;
                      with 1 being low risk and 5 being high risk. If you are unfamiliar with
-                     the package you may mark NA. All responses are anonymous.")
+                     the package you may mark it as NA. All responses are anonymous.")
     })
 
     observeEvent(input$jumpToP1, {
