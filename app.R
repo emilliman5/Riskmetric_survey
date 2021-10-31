@@ -61,9 +61,9 @@ server <- function(input, output, session) {
         qs_idx <- which(qs$question %in% qs_idx)
         surveyOutput(qs[c(1:18,qs_idx), ],
                      survey_title = "Crowd-sourced risk assessment of select packages",
-                     survey_description = "Please rate each package on a scale from 1 to 5; 
-                     with 1 being low risk and 5 being high risk. If you are unfamiliar with 
-                     the package you may mark NA. All reponses are anonymous.")
+                     survey_description = "Please rate each package on a scale from 1 to 5;
+                     with 1 being low risk and 5 being high risk. If you are unfamiliar with
+                     the package you may mark NA. All responses are anonymous.")
     })
     
     observeEvent(input$jumpToP1, {
