@@ -1,12 +1,12 @@
 @import url("https://fonts.googleapis.com/css?family=Source+Code+Pro|Montserrat|Raleway");
 body {
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Montserrat', sans-serif !important;
   background-color: #b0dbff;
 }
 
 h1, h2, h3, h4, h5, h6 {
   color: #333;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Montserrat', sans-serif !important;
 }
 
 h1, h2, h3 {
@@ -27,14 +27,14 @@ h1.title {
 
 h3 {
   font-style: italic;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Montserrat', sans-serif !important;
 }
 
 p {
   color: #333;
   margin: 35px;
   margin-bottom: 10px;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
 li.l {
@@ -152,4 +152,63 @@ label {
 .container-fluid .survey .questions .question-input .shiny-input-container {
   width: 100%;
   padding: 0;
+}
+
+div.text {
+  font-size: 18px;
+}
+
+[data-value="Introduction"] > .text {
+  background-color: white;
+  margin: 15px 200px 40px 200px !important;
+  padding: 50px 100px 20px 100px;
+}
+
+#jumpToP1 {
+  margin-top: 30px;
+  margin-bottom: 50px;
+  width: 100%;
+  font-size: 18px;
+  background-color: #BEE0FC;
+  color: black;
+  font-weight: bold;
+  border-color: white;
+}
+
+#jumpToP1:hover {
+    color: white;
+    background-color: #A1BED5;
+}
+
+#submit {
+  margin-top: 30px;
+  margin-bottom: 50px;
+  width: 100%;
+  font-size: 18px;
+  background-color: white;
+  color: black;
+  font-weight: bold;
+  border-color: white;
+}
+
+#submit:hover {
+    color: white;
+    background-color: #A1BED5;
+}
+
+.questions {
+  padding-left: 50px !important;
+  padding-right: 50px !important;
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+}
+
+.control-label {
+  font-size: 20px !important;
+  font-family: "Montserrat" !important;
+}
+
+.radio span {
+  font-size: 18px !important;
+  font-family: "Montserrat" !important;
 }
