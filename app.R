@@ -30,22 +30,22 @@ ui <- navbarPage("riskmetric Survey", id= "inTabset",
                    regulated industry."),
                  h5("One issue with risk is its need for context. For example, a package used for a class 
                    project is of lower risk than the same package being used to determine if a new therapy is effective.
-                   The risk of a package is the combination of its quality and its criticality in a users workflow."),
-                 h5("Furthermore, weighting of package metrics (i.e. an assessment score) which make up a package's summarized risk score have 
-                    been done arbitrailiy or not at all. Enter this survey. We hope that by crowd sourcing 
-                   a risk rating on a number of packages will allow us to empirically determine weights for each 
+                   The risk of a package is the combination of its quality and its criticality in a user's workflow."),
+                 h5("Furthermore, weighting of package metrics (i.e. an assessment score) which make up a package's summarized risk score have
+                    been done arbitrability or not at all. Enter this survey. We hope that by crowd sourcing
+                   a risk rating on a number of packages will allow us to empirically determine weights for each
                    package metric used in the riskmetric package."),
                  h2("Instructions"),
-                 h5("Please rate the packages on the next tab, based on your preceived risk of using each package in
-                    your environment. Your environment could be your desktop, rstudio cloud, a company server (GxP or non-GxP), etc.
-                    The survey randomly selects 15 packages from the 500-ish most downloaded pacakges on CRAN for you to rate. You are welcome 
-                    to revist survey to rate more packages if you like, however, there is a finite chance of being asked about the same packages
-                    over and over due to the anonimity of the survey."), 
+                 h5("Please rate the packages on the next tab, based on your perceived risk of using each package in
+                    your environment. Your environment could be your desktop, RStudio cloud, a company server (GxP or non-GxP), etc.
+                    The survey randomly selects 15 packages from the 500-ish most downloaded packages on CRAN for you to rate. You are welcome
+                    to revisit survey to rate more packages if you like, however, there is a finite chance of being asked about the same packages
+                    over and over due to the anonymity of the survey."),
                  h2("Data Collection and Privacy:"),
                  h5("We will only collect and store the data submitted on the form. 
                  You are free to skip any questions you are not comfortable answering.
-                   Each user's submission will be uniquely identified by a random string generated when you submit the form for agregation and modeling.
-                   The riskmetric team plans to release all the collected data with the riskmetric package so that other developers 
+                   Each user's submission will be uniquely identified by a random string generated when you submit the form for aggregation and modeling.
+                   The riskmetric team plans to release all the collected data with the riskmetric package so that other developers
                     and users can empirically derive their own package metric weights for summarization."),
         actionButton("jumpToP1", "Start the survey")),
         tabPanel("Survey", value="survey",
@@ -80,7 +80,7 @@ server <- function(input, output, session) {
         #print(response_data)
         sheet_append("https://docs.google.com/spreadsheets/d/1Orw5uWFqLxAv_eronJlKonLSy0KyJLV8QwApMo5pi-g", response_data)
         showModal(modalDialog(
-            title = "Thank you for completeing this suRvey", 
+            title = "Thank you for completeing this suRvey",
         ))
     })
 }
