@@ -83,7 +83,7 @@ server <- function(input, output, session) {
         #print(response_data)
         sheet_append("https://docs.google.com/spreadsheets/d/1Orw5uWFqLxAv_eronJlKonLSy0KyJLV8QwApMo5pi-g", response_data)
         showModal(modalDialog(
-            title = "Thank you for completing this suRvey",
+            title = "Thank you for completing this survey",
         ))
     })
 }
