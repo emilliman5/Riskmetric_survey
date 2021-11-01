@@ -155,7 +155,7 @@ label {
 }
 
 div.text {
-  font-size: 18px;
+  font-size: 15px;
 }
 
 [data-value="Introduction"] > .text {
@@ -168,7 +168,7 @@ div.text {
   margin-top: 30px;
   margin-bottom: 50px;
   width: 100%;
-  font-size: 18px;
+  font-size: 15px;
   background-color: #BEE0FC;
   color: black;
   font-weight: bold;
@@ -204,11 +204,11 @@ div.text {
 }
 
 .control-label {
-  font-size: 20px !important;
+  font-size: 17px !important;
   font-family: "Montserrat" !important;
 }
 
 .radio span {
-  font-size: 18px !important;
+  font-size: 15px !important;
   font-family: "Montserrat" !important;
 }
