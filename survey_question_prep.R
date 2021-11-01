@@ -122,7 +122,7 @@ qs <- dplyr::bind_rows(data.frame(question = c(rep("How many years of experience
                            required = T,
                            stringsAsFactors = F),
                 data.frame(question = rep(ap$package, each = 6),
-                           option = rep(c("NA","1 - (Low)",2:4, "5 - (High)"), length(ap$package)),
+                           option = rep(c("NA","1 - (Lowest Risk/Highest Quality)",2:4, "5 - (Highest Risk/Lowest Quality)"), length(ap$package)),
                            input_type = c("mc"),
                            input_id = rep(ap$package, each = 6),
                            dependence = NA,

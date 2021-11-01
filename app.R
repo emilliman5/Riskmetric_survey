@@ -46,10 +46,10 @@ ui <- navbarPage(
                    project is of lower risk than the same package being used to determine if a new therapy is effective.
                    The risk of a package is the combination of its quality and its criticality in a user's workflow."),
 
-            p("Furthermore, weighting of package metrics (i.e., an assessment score) which make up a package's summarized risk score has
-                    been done arbitrability or not at all. Enter this survey. We hope that by crowd sourcing
-                   a risk rating on a number of packages we can empirically determine weights for each
-                   package metric used in the riskmetric package."),
+            p("Furthermore, to date, weighting of package metrics (i.e., an assessment score) which make up a package's summarized risk score has
+                    been done arbitrarily or not at all. Enter this survey. We hope that by crowd sourcing
+                   a risk/quality rating on a number of packages we can empirically determine weights for each
+                   package metric (assessment score) used in the riskmetric package."),
             br(),
             h2("Instructions"),
             p("Please rate the packages on the next tab, based on your perceived risk of using each package in
@@ -99,7 +99,7 @@ server <- function(input, output, session) {
         sheet_append("https://docs.google.com/spreadsheets/d/1Orw5uWFqLxAv_eronJlKonLSy0KyJLV8QwApMo5pi-g", response_data)
         showModal(modalDialog(
                 title = "Survey completed",
-                "Thank you for completing this survey!",
+                "Your responses have been submitted. Thank you for completing this suRvey.",
                 footer = tagList(actionButton("close", "Close survey"))))
     })
 
