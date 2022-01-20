@@ -1,0 +1,181 @@
+---
+title: "Riskmetric survey package selection"
+author: "Eric Milliman"
+date: "1/19/2022"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_depth: 2
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gt)
+library(tidyverse)
+library(ctv)
+library(igraph)
+
+graph.reverse <- function (graph) {
+  if (!is.directed(graph))
+    return(graph)
+  e <- get.data.frame(graph, what="edges")
+  ## swap "from" & "to"
+  neworder <- 1:length(e)
+  neworder[1:2] <- c(2,1)
+  e <- e[neworder]
+  names(e) <- names(e)[neworder]
+  graph.data.frame(e, vertices = get.data.frame(graph, what="vertices"))
+}
+
+ctvs <- available.views(repos = "https://cran.rstudio.com/")
+views <- sapply(ctvs, function(x) x$name)[c(1,3,5,7,18,21,23,28,36,38)]
+
+ctv_pkgs <- bind_rows(lapply(ctvs[c(1,3,5,7,18,21,23,28,36,38)], 
+                             function(x) x$packagelist))
+ctv_pkgs <- ctv_pkgs$name[!ctv_pkgs$core]
+
+if(!file.exists("ap.rds")){
+  ap <- as.data.frame(available.packages(repos = "https://cran.rstudio.com/"))
+  saveRDS(ap, "ap.rds")
+} else {
+  ap <- readRDS("ap.rds")
+}
+
+if(file.exists("downloads_1_yr_from.rds")){
+  dwlds <- readRDS("downloads_1_yr_from.rds")
+} else{
+  dwlds <- lapply(split(ap$Package, ceiling(seq_along(ap$Package)/500)), 
+                  function(x){
+                    cranlogs::cran_downloads(x, from = Sys.Date()-366, 
+                                             to = Sys.Date()-1)
+                  })
+  
+  dwlds <- do.call(rbind, dwlds)
+  saveRDS(dwlds, "downloads_1_yr_from.rds")
+}
+```
+
+# Purpose
+
+The __riskmetric__ package aims to provide an objective assessment of package quality and risk. During the development of this package we recognized that there is an opportunity to empirically learn which package assessments are most important to the community with regards to package risk/quality. To gather the necessary data to learn these weights empirically we have designed a simple survey which asks participants to rate the quality/risk a small subset of packages based on their personal experience/opinion.
+
+## Method to choose packages for survey
+
+We cannot gater quality ratings for all packages for R:
+  1) There are more than 15,000 packages in CRAN, thousands more in Bioconductor, and an untold number in github/bitbucket/gitlab. And our survey population is not that large.
+  2) Pharma/biotech's biggest focus is statistical analysis and reporting, which many packages do not get used by the industry (e.g. finance, GIS focised packages).
+  3) Lastly, a typical end user may only be familliar with the packages they invoke and not their dependencies (e.g. most users are probably familiar with ggplot2, but not rlang, digest, and scales). 
+
+In the below section we will walk through the section of packages to survey users with, keeping the above criteria in mind.
+
+## CRAN views
+```{r}
+vws <- sapply(ctvs, "[[", 1)
+gtobj <- bind_cols(split(vws, cut(seq_along(vws), 4, labels = F))) %>% 
+  gt() %>% 
+  tab_header("CRAN Task Views") %>%  
+  tab_options(column_labels.hidden = TRUE)
+
+for(i in seq_along(gtobj$`_data`)){
+  gtobj <- gtobj %>% tab_style(
+    style = cell_fill("yellow"),
+    locations = cells_body(
+      columns = all_of(i),
+      rows = gtobj$`_data`[[i]] %in% vws[c(1,3,5,7,18,21,23,28,36,38)]
+    )
+  )
+}
+
+ap <- ap %>% mutate(isStat=+(Package %in% ctv_pkgs))
+
+gtobj
+```
+
+## Package popularity
+
+People are more likely to be familiar with more popular packages (i.e. packages with high download counts)
+```{r}
+ap <- dwlds %>% 
+  group_by(package) %>% 
+  summarise(count=sum(count)) %>% 
+  right_join(., ap, by = c("package" = "Package"))
+
+ap %>% ggplot(aes(x=count)) + 
+  geom_histogram() + scale_x_log10() + 
+  xlab("Downloads (log10)")
+  ggtitle("All CRAN Packages", "Last 385 days")
+```
+
+```{r}
+ap %>% 
+  filter(isStat==1) %>% 
+  ggplot(aes(x=count)) + 
+  geom_histogram() + scale_x_log10() + 
+  xlab("Downloads (log10)")
+  ggtitle("Selected CRAN TaskViews", "Last 385 days")
+
+```
+
+## Packages that are most user-facing
+
+Packages with alot of reverse Imports suggests it maybe a lower level package that users may not use directly (i.e. `rlang`. Packages with a lot of reverse Depends on the other hand are packages that are more likely to be used directly by the user (i.e. `ggplot2`). Ideally we want pakcages with high downloads, low reverse imports and high reverse depends (though this last criteria is less important) 
+```{r}
+dg <- miniCRAN::makeDepGraph(ap$package, suggests = FALSE)
+dgr <- graph.reverse(dg)
+
+ap_df <- left_join(ap, 
+                data.frame(package = V(dg)$name,
+                           revImports=degree(delete_edges(dg, E(dg)[which(E(dg)$type!="Imports")])),
+                           revDeps=degree(delete_edges(dg, E(dg)[which(E(dg)$type!="Depends")])),
+                           pageRank = page_rank(dgr, directed = TRUE)[[1]]
+                           ) 
+                )
+
+ap_df %>%
+  ggplot(aes(x=revImports+0.1)) +
+  geom_histogram() + scale_x_log10() +
+  ggtitle("Package Reverse Imports","All CRAN")
+
+ap_df %>%
+  ggplot(aes(x=revDeps+0.1)) +
+  geom_histogram() + scale_x_log10() +
+  ggtitle("Package Reverse Depends","All CRAN")
+
+ap_df %>% 
+  ggplot(aes(x=revDeps+0.1, y=revImports+0.1)) + geom_hex() +
+  scale_x_log10() + scale_y_log10()
+
+ap_df %>% 
+  ggplot(aes(x=revDeps+0.1, y=revImports+0.1)) + geom_hex() +
+  scale_x_log10() + scale_y_log10()
+
+ap_df %>% 
+  ggplot(aes(x=count, y=revImports+0.1)) + geom_hex() +
+  scale_x_log10() + scale_y_log10()
+
+ap_df %>% 
+  ggplot(aes(x=count, y=revDeps+0.1)) + geom_hex() +
+  scale_x_log10() + scale_y_log10()
+
+```
+
+```{r}
+ap_df_filtered <- ap_df %>% 
+  mutate(count_rank=percent_rank(count)) %>%
+  group_by(isStat) %>% 
+  mutate(revDep_rank = percent_rank(revDeps),
+         count_rank_g = percent_rank(count)) %>% 
+  filter((revDeps>0 & revImports==0 & count_rank >=0.99) | 
+           (isStat==1 & revDep_rank >= 0.75 & count_rank_g >=0.75 ) | 
+           (isStat==0 & revDep_rank >= 0.98 & count_rank_g >=0.98))
+
+
+ap_df_filtered %>% 
+  select(package, inCTV=isStat, downloads=count, revDeps, revImports) %>% 
+  DT::datatable()
+saveRDS(ap_df_filtered, "qs_current.rds")
+saveRDS(ap_df_filtered, paste0("qs_", gsub("-","", Sys.Date(), ".rds")))
+```
