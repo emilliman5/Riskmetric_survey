@@ -1,5 +1,25 @@
 library(tidyverse)
+library(ctv)
+library(igraph)
 setwd("~/OneDrive - Biogen/packages/r_package_survey/R_package_risk_survey/")
+
+graph.reverse <- function (graph) {
+  if (!is.directed(graph))
+    return(graph)
+  e <- get.data.frame(graph, what="edges")
+  ## swap "from" & "to"
+  neworder <- 1:length(e)
+  neworder[1:2] <- c(2,1)
+  e <- e[neworder]
+  names(e) <- names(e)[neworder]
+  graph.data.frame(e, vertices = get.data.frame(graph, what="vertices"))
+}
+
+ctvs <- available.views()
+views <- sapply(ctvs, function(x) x$name)[c(1,2,5,7,18,21,23,28,36,38)]
+
+ctv_pkgs <- bind_rows(lapply(ctvs[c(1,3,5,7,18,21,23,28,36,38)], function(x) x$packagelist))
+ctv_pkgs <- ctv_pkgs$name[!ctv_pkgs$core]
 
 validRpkgs <- c("abind", "ape", "askpass", "assertthat", "backports", "base64enc", 
                 "BH", "BiocManager", "bit", "bit64", "blob", "brew", "brio", 
@@ -99,13 +119,59 @@ dwlds <- lapply(split(ap$Package, ceiling(seq_along(ap$Package)/500)),
                 function(x){
                   cranlogs::cran_downloads(x, "last-month")
                 })
+
 dwlds <- do.call(rbind, dwlds)
 ap <- dwlds %>% 
   group_by(package) %>% 
   summarise(count=sum(count)) %>% 
-  right_join(., ap, by = c("package" = "Package")) %>% 
-  filter(package %in% validRpkgs | count >= 36692)
+  right_join(., ap, by = c("package" = "Package"))
 
+dg <- miniCRAN::makeDepGraph(ap$package, suggests = FALSE)
+dgr <- graph.reverse(dg)
+
+ap_df <- left_join(ap, 
+                data.frame(package = V(dg)$name,
+                           revImports=degree(delete_edges(dg, E(dg)[which(E(dg)$type!="Imports")])),
+                           revDeps=degree(delete_edges(dg, E(dg)[which(E(dg)$type!="Depends")])),
+                           pageRank = page_rank(dgr, directed = TRUE)[[1]]
+                           ) 
+                )
+
+ap_df <- ap_df %>% mutate(isStat=+(package %in% ctv_pkgs))
+
+ap_df %>% 
+  filter(isStat==1) %>% 
+  mutate(revDep_rank = percent_rank(revDeps),
+         count_rank = percent_rank(count)) %>% 
+  filter(revDeps > 100 | count > 1e5) %>% 
+  select(package, count, count_rank, revDeps,revDep_rank, revImports, Priority) %>% 
+  View()
+
+ap_df %>% ggplot(., aes(x=revDeps+0.1, y=revImports+0.1)) + geom_hex() + scale_y_log10() + scale_x_log10()
+
+scatterplot3d::scatterplot3d(x=log10( ap_df$revDeps+0.1), y=log10(ap_df$revImports+0.1), z=ap_df$pageRank)
+plot(y = ap_df$pageRank, x = log10(ap_df$revDeps+0.1))
+hist(log10(ap_df$revDeps+0.1))
+hist(log10(ap_df$revImports+0.1))
+
+ap_df %>% filter(revDeps==0) %>% 
+  ggplot(aes(x=revImports+0.1)) +
+  geom_histogram() + scale_x_log10()
+
+ap_df %>% filter(revImports==0) %>% 
+  ggplot(aes(x=revDeps+0.1)) +
+  geom_histogram() + scale_x_log10()
+
+ap_df_filtered <- ap_df %>% 
+  mutate(count_rank=percent_rank(count)) %>%
+  group_by(isStat) %>% 
+  mutate(revDep_rank = percent_rank(revDeps),
+         count_rank_g = percent_rank(count)) %>% 
+  filter((revDeps==0 & revImports>0 & count_rank >=0.99) | 
+           (isStat==1 & revDep_rank >= 0.75 & count_rank_g >=0.75 ) | 
+           (isStat==0 & revDep_rank >= 0.98 & count_rank_g >=0.98))
+
+ap_df_filtered %>% select(1:3) %>% View()
 
 qs <- dplyr::bind_rows(data.frame(question = c(rep("How many years of experience with R do you have?", 4),
                                         rep("What sector are you currently in?", 6),
@@ -121,13 +187,15 @@ qs <- dplyr::bind_rows(data.frame(question = c(rep("How many years of experience
                            dependence_value = NA,
                            required = T,
                            stringsAsFactors = F),
-                data.frame(question = rep(ap$package, each = 6),
-                           option = rep(c("NA","1 - (Lowest Risk/Highest Quality)",2:4, "5 - (Highest Risk/Lowest Quality)"), length(ap$package)),
+                data.frame(question = rep(ap_df_filtered$package, each = 6),
+                           option = rep(c("NA","1 - (Lowest Risk/Highest Quality)",2:4, 
+                                          "5 - (Highest Risk/Lowest Quality)"), 
+                                        length(ap_df_filtered$package)),
                            input_type = c("mc"),
-                           input_id = rep(ap$package, each = 6),
+                           input_id = rep(ap_df_filtered$package, each = 6),
                            dependence = NA,
                            dependence_value = NA,
                            required = F,
                            stringsAsFactors = F) 
 )
-saveRDS(qs, "qs.rds")
+saveRDS(qs, paste0("qs_",gsub("-","", Sys.Date()),".rds"))
