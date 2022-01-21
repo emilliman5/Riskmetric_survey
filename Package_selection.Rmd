@@ -108,17 +108,18 @@ ap <- dwlds %>%
 
 ap %>% ggplot(aes(x=count)) + 
   geom_histogram() + scale_x_log10() + 
-  xlab("Downloads (log10)")
+  xlab("Downloads (log10)") +
   ggtitle("All CRAN Packages", "Last 365 days")
 ```
 
 If we look at the download statistics for the packages in the selected CRAN Task Views we see that the distribution of download counts is similar to all CRAN pacakges
+
 ```{r}
 ap %>% 
   filter(isStat==1) %>% 
   ggplot(aes(x=count)) + 
   geom_histogram() + scale_x_log10() + 
-  xlab("Downloads (log10)")
+  xlab("Downloads (log10)") +
   ggtitle("Selected CRAN TaskViews", "Last 385 days")
 
 ```
@@ -151,19 +152,15 @@ ap_df %>%
 
 ap_df %>% 
   ggplot(aes(x=revDeps+0.1, y=revImports+0.1)) + geom_hex() +
-  scale_x_log10() + scale_y_log10()
-
-ap_df %>% 
-  ggplot(aes(x=revDeps+0.1, y=revImports+0.1)) + geom_hex() +
-  scale_x_log10() + scale_y_log10()
+  scale_x_log10() + scale_y_log10() + ggtitle("Relationship between Reverse imports and reverse depends", "All CRAN packages")
 
 ap_df %>% 
   ggplot(aes(x=count, y=revImports+0.1)) + geom_hex() +
-  scale_x_log10() + scale_y_log10()
+  scale_x_log10() + scale_y_log10() + ggtitle("Relationship between Reverse imports and downloads", "All CRAN packages")
 
 ap_df %>% 
   ggplot(aes(x=count, y=revDeps+0.1)) + geom_hex() +
-  scale_x_log10() + scale_y_log10()
+  scale_x_log10() + scale_y_log10() + ggtitle("Relationship between reverse depends and downloads", "All CRAN packages")
 
 ```
 
