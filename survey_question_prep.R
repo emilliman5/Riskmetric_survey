@@ -17,6 +17,7 @@ graph.reverse <- function (graph) {
 
 ctvs <- available.views()
 views <- sapply(ctvs, function(x) x$name)[c(1,2,5,7,18,21,23,28,36,38)]
+sapply(ctvs, "[[", 1)
 
 ctv_pkgs <- bind_rows(lapply(ctvs[c(1,3,5,7,18,21,23,28,36,38)], function(x) x$packagelist))
 ctv_pkgs <- ctv_pkgs$name[!ctv_pkgs$core]
