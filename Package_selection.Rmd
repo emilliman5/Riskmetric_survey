@@ -64,7 +64,7 @@ The __riskmetric__ package aims to provide an objective assessment of package qu
 
 ## Method to choose packages for survey
 
-We cannot gater quality ratings for all packages for R:
+We cannot gather quality ratings for all packages in R for a number of:
   1) There are more than 15,000 packages in CRAN, thousands more in Bioconductor, and an untold number in github/bitbucket/gitlab. And our survey population is not that large.
   2) Pharma/biotech's biggest focus is statistical analysis and reporting, which many packages do not get used by the industry (e.g. finance, GIS focised packages).
   3) Lastly, a typical end user may only be familliar with the packages they invoke and not their dependencies (e.g. most users are probably familiar with ggplot2, but not rlang, digest, and scales). 
@@ -72,6 +72,9 @@ We cannot gater quality ratings for all packages for R:
 In the below section we will walk through the section of packages to survey users with, keeping the above criteria in mind.
 
 ## CRAN views
+
+To narrow down the list of packages to survey users about we selected a handful CRAN Task Views that Pharma/Biotech users most aligh with.
+
 ```{r}
 vws <- sapply(ctvs, "[[", 1)
 gtobj <- bind_cols(split(vws, cut(seq_along(vws), 4, labels = F))) %>% 
@@ -96,7 +99,7 @@ gtobj
 
 ## Package popularity
 
-People are more likely to be familiar with more popular packages (i.e. packages with high download counts)
+People are more likely to be familiar with more popular packages (i.e. packages with high download counts). So we pulled the download statistics from the past year for all CRAN packages, to use for identifying the most popular packages.
 ```{r}
 ap <- dwlds %>% 
   group_by(package) %>% 
@@ -106,9 +109,10 @@ ap <- dwlds %>%
 ap %>% ggplot(aes(x=count)) + 
   geom_histogram() + scale_x_log10() + 
   xlab("Downloads (log10)")
-  ggtitle("All CRAN Packages", "Last 385 days")
+  ggtitle("All CRAN Packages", "Last 365 days")
 ```
 
+If we look at the download statistics for the packages in the selected CRAN Task Views we see that the distribution of download counts is similar to all CRAN pacakges
 ```{r}
 ap %>% 
   filter(isStat==1) %>% 
@@ -119,9 +123,10 @@ ap %>%
 
 ```
 
-## Packages that are most user-facing
+## Packages that are most-likely user-facing
 
-Packages with alot of reverse Imports suggests it maybe a lower level package that users may not use directly (i.e. `rlang`. Packages with a lot of reverse Depends on the other hand are packages that are more likely to be used directly by the user (i.e. `ggplot2`). Ideally we want pakcages with high downloads, low reverse imports and high reverse depends (though this last criteria is less important) 
+Some packages are popular by virtue of being heavily depended on (e.g. Rcpp, rlang, etc). However, an average user may not be familiar with these packages because they are not directly exposed to the user. To tease apart "low-level" packages from more user-facing packages, we assess the number of reverse imports and reverse dependencies a package has. Packages with alot of reverse Imports suggests it maybe a lower level package that users may not use directly (i.e. `rlang`. Packages with a lot of reverse Depends on the other hand are packages that are more likely to be used directly by the user (i.e. `ggplot2`). Ideally we want pakcages with high downloads, a low number of reverse imports and high number of reverse depends (though this last criteria is less important).
+
 ```{r}
 dg <- miniCRAN::makeDepGraph(ap$package, suggests = FALSE)
 dgr <- graph.reverse(dg)
@@ -161,6 +166,10 @@ ap_df %>%
   scale_x_log10() + scale_y_log10()
 
 ```
+
+## Packages selected
+
+Using the criteria above we have selected the following packages, with the aim to keep the list to a few hundred.
 
 ```{r}
 ap_df_filtered <- ap_df %>% 
