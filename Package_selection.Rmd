@@ -182,6 +182,6 @@ ap_df_filtered <- ap_df %>%
 ap_df_filtered %>% 
   select(package, inCTV=isStat, downloads=count, revDeps, revImports) %>% 
   DT::datatable()
-saveRDS(ap_df_filtered, "qs_current.rds")
-saveRDS(ap_df_filtered, paste0("qs_", gsub("-","", Sys.Date(), ".rds")))
+saveRDS(ap_df_filtered, "packages_selection_current.rds")
+saveRDS(ap_df_filtered, paste0("packages_selection_", gsub("-","", Sys.Date(), ".rds")))
 ```
